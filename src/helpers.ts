@@ -17,23 +17,33 @@ interface ObjPaths {
   path: string[];
 }
 
-export const getPaths = (data: any, dedupelicate?: boolean) => {
+interface PathMap {
+  [template: string]: string[]
+}
+
+export const getPaths = (data: any) => {
   let paths: string[][] = [];
+  let pathMap: PathMap = {}
   let nodes: ObjPaths[] = [
     {
       data,
       path: [],
     },
   ];
+  let index = 0;
   while (nodes.length > 0) {
     const node = nodes.pop()!;
     const keys = Object.keys(node.data);
     let objKeys: string[] = [];
+
     for (const key of keys) {
       if (typeof node.data[key] === "object") {
         // handle nested objects and arrays
         const path = node.path.concat(key);
-        paths.push(path);
+        const template = createTemplateString(path);
+        const pathString = path.join('.')
+        pathMap[template] = [...pathMap?.[template] ?? [], pathString]
+        
         nodes.unshift({
           data: node.data[key],
           path,
@@ -46,38 +56,21 @@ export const getPaths = (data: any, dedupelicate?: boolean) => {
     for (const k of objKeys) {
       // add top level keys to path array
       const path = node.path.concat(k);
-      paths.push(path);
+      const template = createTemplateString(path);
+      const pathString = path.join('.')
+      pathMap[template] = [...pathMap?.[template] ?? [], pathString]
     }
+    index++;
   }
 
-  if (!dedupelicate) {
-    return paths.map((p) => p.join("."));
-  }
-  // numbers represent array indexes, so we replace numbers with '*'
-  const set = paths.map((path) =>
-    path
-      .map((p) => {
-        const int = parseInt(p);
-        return int || int === 0 ? "*" : p;
-      })
-      .join(".")
-  );
-
-  // dedupelicate paths and return, joined by '.'
-  return Array.from(new Set(set));
+  return pathMap
 };
 
-export function flattenByPath<T>(data: T[], template: string) {
-  // you gotta do stuff now boss
-  const paths = getPaths(data)
-  if (template.includes("*")) {
-    const paths = template.split(".");
-    for(let i = 0; i < paths.length; i++){
-      const path = 
-    }
-  }
+function createTemplateString(path: string[]) {
+  return path
+    .map((p) => {
+      const int = parseInt(p, 10);
+      return int || int === 0 ? "*" : p;
+    })
+    .join(".");
 }
-
-/[,[\].]+?/;
-const reg = /[a-z]\.[a-z]\.[a-z]\.\d*\.[a-z]/gim;
-const reg2 = /\w\.\w\../;
