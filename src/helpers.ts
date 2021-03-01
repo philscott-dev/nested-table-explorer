@@ -1,5 +1,5 @@
 // https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_get
-export const get = (obj: any, path: string, defaultValue = undefined) => {
+export const get = (obj: any, path: string, defaultValue?: any) => {
   const travel = (regexp: RegExp) =>
     String.prototype.split
       .call(path, regexp)
@@ -18,7 +18,7 @@ export const get = (obj: any, path: string, defaultValue = undefined) => {
 
 interface ObjPaths {
   data: any
-  path: string[]
+  path: (string | number)[]
 }
 
 interface PathMap {
@@ -33,11 +33,12 @@ export const getPaths = (data: any) => {
       path: [],
     },
   ]
-  let index = 0
   while (nodes.length > 0) {
     const node = nodes.pop()!
-    const keys = Object.keys(node.data)
-    let objKeys: string[] = []
+    const keys = Array.isArray(node.data)
+      ? Array.from({ length: node.data.length }, (_, i) => i)
+      : Object.keys(node.data)
+    let objKeys: (string|number)[] = []
 
     for (const key of keys) {
       if (typeof node.data[key] === 'object') {
@@ -63,17 +64,11 @@ export const getPaths = (data: any) => {
       const pathString = path.join('.')
       pathMap[template] = [...(pathMap?.[template] ?? []), pathString]
     }
-    index++
   }
 
   return pathMap
 }
 
-function createTemplateString(path: string[]) {
-  return path
-    .map((p) => {
-      const int = parseInt(p, 10)
-      return int || int === 0 ? '*' : p
-    })
-    .join('.')
+function createTemplateString(path: (string | number)[]) {
+  return path.map((p) => (typeof p === 'number' ? '*' : p)).join('.')
 }

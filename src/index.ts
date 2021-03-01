@@ -1,12 +1,19 @@
 import { get, getPaths } from './helpers'
 import { mock } from './mock'
 
+console.log(mock)
+
 // get a path map based on data
 const pathMap = getPaths(mock)
+console.log(pathMap)
 
 // fake selecting 2 paths from the path map
-const userTemplates = ['*.c.e.*.f', '*.c.e.*.h']
-const paths = userTemplates.map((template) => pathMap?.[template]).flat()
+const userTemplates = ['*.c.e.*.f', '*.c.e.*.h', '*.c.*', '*.c.0.*.0']
+const paths = userTemplates
+  .map((template) => pathMap?.[template])
+  .flat()
+  .filter(Boolean)
+console.log(paths)
 
 let tableData: any[] = []
 for (const path of paths) {
