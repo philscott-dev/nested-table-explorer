@@ -6,15 +6,19 @@ export const get = (obj: any, path: string, defaultValue = undefined) => {
       .filter(Boolean)
       .reduce(
         (res, key) => (res !== null && res !== undefined ? res[key] : res),
-        obj
-      );
-  const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/);
-  return result === undefined || result === obj ? defaultValue : result;
-};
+        obj,
+      )
+  const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/)
+  return result === undefined || result === obj ? defaultValue : result
+}
+
+/**
+ * Get Path Map
+ */
 
 interface ObjPaths {
-  data: any;
-  path: string[];
+  data: any
+  path: string[]
 }
 
 interface PathMap {
@@ -22,55 +26,54 @@ interface PathMap {
 }
 
 export const getPaths = (data: any) => {
-  let paths: string[][] = [];
   let pathMap: PathMap = {}
   let nodes: ObjPaths[] = [
     {
       data,
       path: [],
     },
-  ];
-  let index = 0;
+  ]
+  let index = 0
   while (nodes.length > 0) {
-    const node = nodes.pop()!;
-    const keys = Object.keys(node.data);
-    let objKeys: string[] = [];
+    const node = nodes.pop()!
+    const keys = Object.keys(node.data)
+    let objKeys: string[] = []
 
     for (const key of keys) {
-      if (typeof node.data[key] === "object") {
+      if (typeof node.data[key] === 'object') {
         // handle nested objects and arrays
-        const path = node.path.concat(key);
-        const template = createTemplateString(path);
+        const path = node.path.concat(key)
+        const template = createTemplateString(path)
         const pathString = path.join('.')
-        pathMap[template] = [...pathMap?.[template] ?? [], pathString]
-        
+        pathMap[template] = [...(pathMap?.[template] ?? []), pathString]
+
         nodes.unshift({
           data: node.data[key],
           path,
-        });
+        })
       } else {
         // collect the keys that are on top level objects
-        objKeys = [...objKeys, key];
+        objKeys = [...objKeys, key]
       }
     }
     for (const k of objKeys) {
       // add top level keys to path array
-      const path = node.path.concat(k);
-      const template = createTemplateString(path);
+      const path = node.path.concat(k)
+      const template = createTemplateString(path)
       const pathString = path.join('.')
-      pathMap[template] = [...pathMap?.[template] ?? [], pathString]
+      pathMap[template] = [...(pathMap?.[template] ?? []), pathString]
     }
-    index++;
+    index++
   }
 
   return pathMap
-};
+}
 
 function createTemplateString(path: string[]) {
   return path
     .map((p) => {
-      const int = parseInt(p, 10);
-      return int || int === 0 ? "*" : p;
+      const int = parseInt(p, 10)
+      return int || int === 0 ? '*' : p
     })
-    .join(".");
+    .join('.')
 }
