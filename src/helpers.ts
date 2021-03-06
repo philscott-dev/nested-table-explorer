@@ -34,32 +34,45 @@ export const getPaths = (data: any) => {
     },
   ]
   while (nodes.length > 0) {
-    const node = nodes.pop()!
+    const lastIndex = nodes.length - 1
+
+    // get the last node
+    const node = nodes.slice(lastIndex)[0]
+
+    // remove that index from the array
+    nodes = nodes.slice(0, lastIndex)
+
+    // generate indicies or keys
     const keys = Array.isArray(node.data)
       ? Array.from({ length: node.data.length }, (_, i) => i)
       : Object.keys(node.data)
-    let objKeys: (string|number)[] = []
+
+    // temp holder for object keys
+    let objKeys: (string | number)[] = []
 
     for (const key of keys) {
       if (typeof node.data[key] === 'object') {
         // handle nested objects and arrays
-        const path = node.path.concat(key)
+        const path = handleIndexOrStringPaths(node.path, key)
         const template = createTemplateString(path)
         const pathString = path.join('.')
         pathMap[template] = [...(pathMap?.[template] ?? []), pathString]
-
-        nodes.unshift({
-          data: node.data[key],
-          path,
-        })
+        nodes = [
+          {
+            data: node.data[key],
+            path,
+          },
+          ...nodes,
+        ]
       } else {
         // collect the keys that are on top level objects
         objKeys = [...objKeys, key]
       }
     }
+
     for (const k of objKeys) {
       // add top level keys to path array
-      const path = node.path.concat(k)
+      const path = handleIndexOrStringPaths(node.path, k)
       const template = createTemplateString(path)
       const pathString = path.join('.')
       pathMap[template] = [...(pathMap?.[template] ?? []), pathString]
@@ -69,6 +82,52 @@ export const getPaths = (data: any) => {
   return pathMap
 }
 
+// path templates that look like "myKey[100]""
+export function parseIndexPath(key: string) {
+  const start = key.indexOf('[')
+  const end = key.indexOf(']')
+
+  if (start < 0 || end < 0 || end < start) {
+    return { key }
+  }
+
+  return {
+    key: key.substring(0, start),
+    index: key.substring(start + 1, end),
+  }
+}
+
+/**
+ * Private Helpers
+ */
+
+function handleIndexOrStringPaths(
+  path: (string | number)[],
+  key: string | number,
+) {
+  if (!path.length) {
+    return [key]
+  }
+  if (typeof key === 'number') {
+    return [
+      ...path.slice(0, path.length - 1),
+      path[path.length - 1] + `[${key}]`,
+    ]
+  }
+  return path.concat(key)
+}
+
 function createTemplateString(path: (string | number)[]) {
-  return path.map((p) => (typeof p === 'number' ? '*' : p)).join('.')
+  return path
+    .map((p) => {
+      if (typeof p === 'number') {
+        return '*'
+      }
+      if (p.endsWith(']')) {
+        const { key } = parseIndexPath(p)
+        return `${key}[*]`
+      }
+      return p
+    })
+    .join('.')
 }

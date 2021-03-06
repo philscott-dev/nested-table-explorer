@@ -3,7 +3,7 @@ export const mock = [
     a: 1,
     b: 2,
     c: {
-      d: 3,
+      d: 4,
       '1': 'string?',
       e: [
         {
@@ -31,8 +31,11 @@ export const mock = [
     a: 1,
     b: 2,
     c: {
-      d: 3,
-      0: [{ 0: 'help' }],
+      d: 10,
+      0: [
+        { 0: 'help', 1: 'one' },
+        { 0: 'oh', 1: 'no' },
+      ],
       e: [
         {
           f: '6',
