@@ -29,7 +29,6 @@ export function getMetadata(response: any, paths: string[]): Metadata[] {
   })
 }
 
-
 /**
  * Generate new tableData array
  */
@@ -37,14 +36,22 @@ export function getMetadata(response: any, paths: string[]): Metadata[] {
 export function flattenData(response: any, metadata: Metadata[]) {
   let temp: any = []
   // flatten the table by selected path
-  for (const { index, prop, data, path } of metadata) {
-    // spread the original data and add the flattened data to the top level
+  for (const { index, data, prop: p } of metadata) {
+    //get the prop name without the [*] index
+    const prop = p.endsWith(']') ? p.substring(0, p.indexOf('[')) : p
+
     if (temp[index]?.[prop]) {
-      // if the path already exists add value as a new line
-      temp[index][prop] = `${response[index][prop]}\r\n ${data}`
+      // if the data exists, add it to the flattened prop
+      if (Array.isArray(temp[index][prop])) {
+        // spread the data if the array exists 
+        temp[index][prop] = [...temp[index][prop], data]
+      } else {
+        // else create an array for the first time
+        temp[index][prop] = [temp[index][prop], data]
+      }
     } else {
       // else create a new prop top level and add data
-      temp[index] = { ...temp[index] ?? {}, [prop]: data }
+      temp[index] = { ...(temp[index] ?? {}), [prop]: data }
     }
   }
   return temp
@@ -56,7 +63,7 @@ export function flattenData(response: any, metadata: Metadata[]) {
  * are the object themselves.
  */
 
-export function flattenNestedProp(response: any, metadata: Metadata[]){
+export function flattenNestedProp(response: any, metadata: Metadata[]) {
   for (const { index, prop, data, path } of metadata) {
     // spread the original data and add the flattened data to the top level
     if (response[index][prop]) {
@@ -99,11 +106,11 @@ export function flattenNestedProp(response: any, metadata: Metadata[]){
 /**
  * remove paths from the path map based on some logic
  */
- export function cleanupPathMaps(pathMap: PathMap) {
-  for (const [key, value] of Object.entries(pathMap)) {
+export function cleanupPathMaps(pathMap: PathMap) {
+  for (const [template, paths] of Object.entries(pathMap)) {
     // remove base path always
-    if (key === '*') {
-      delete pathMap[key]
+    if (template === '*') {
+      delete pathMap[template]
     }
   }
   return pathMap
