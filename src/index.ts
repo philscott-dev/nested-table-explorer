@@ -1,18 +1,26 @@
-import { get, getPaths, parseIndexPath } from './helpers'
-import { mock } from './mock'
+import { get, getPaths, parseKey, isObject } from './helpers'
+import { mock as mockData } from './mock'
+
+// faking returning data as any
+const getMock = (): any => mockData
+const mock = getMock()
 
 // get a path map based on data
 let pathMap = getPaths(mock)
-console.log(pathMap)
+
+// clean up available path maps to the user
+// TODO: add more if needed
 for (const [key, value] of Object.entries(pathMap)) {
+  // remove base path
   if (key === '*') {
     delete pathMap[key]
   }
-  const data = get(mock, value[0])
-  // this is a comment
 }
 
-// fake selecting 2 paths from the path map
+// display the path maps available
+console.log(pathMap)
+
+// fake selecting paths from the path map
 const userTemplates = ['*.c.e[*].f']
 const paths = userTemplates
   .map((template) => pathMap?.[template])
@@ -40,30 +48,39 @@ const flattened = paths.map((path) => {
 // flatten the table by selected path
 for (const { index, prop, data, path } of flattened) {
   // spread the original data and add the flattened data to the top level
-  mock[index] = { ...mock[index], [prop]: data }
+  if (mock[index][prop]) {
+    // if the path already exists add value as a new line
+    mock[index][prop] = `${mock[index][prop]}\r\n ${data}`
+  } else {
+    // else create a new prop top level and add data
+    mock[index] = { ...mock[index], [prop]: data }
+  }
 
   // delete the old data at path
-  path.split('.').forEach((key, index) => {
+  const paths = path.split('.')
+  paths.reduce((obj, key, index) => {
+    let temp = obj
+    const [k, i] = parseKey(key, index)
 
-    //const k = parseKey(key, index)
-    //TODO: Still trying to figure out how to remove data after flattening!!!
-    //console.log(k)
-  })
+    // as long as theres an array or object nested
+    if (k && isObject(temp)) {
+      if (typeof temp[k] === 'object') {
+        // if the value is an object or array, assign and continue
+        temp = temp[k]
+      } else {
+        // IMPORTANT: else, it's a value, so delete the nested key!
+        delete temp[k]
+      }
+    }
+
+    // assign array element and continue
+    if (typeof i === 'number' && Array.isArray(temp)) {
+      temp = temp[i]
+    }
+
+    return temp
+  }, mock)
 }
 
-console.log(mock)
-
-/** Helpers  */
-
-function parseKey(key: string, index: number) {
-  if (index === 0) {
-    return [parseInt(key, 10), undefined]
-  }
-
-  if (key.endsWith(']')) {
-    const parsed = parseIndexPath(key)
-    return [parsed.key, parsed.index]
-  }
-
-  return [key, undefined]
-}
+// Finish
+console.log(JSON.stringify(mock, null, 2))

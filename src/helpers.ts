@@ -93,9 +93,31 @@ export function parseIndexPath(key: string) {
 
   return {
     key: key.substring(0, start),
-    index: key.substring(start + 1, end),
+    index: parseInt(key.substring(start + 1, end), 10),
   }
 }
+
+export function parseKey(
+  key: string,
+  index: number,
+): [string | undefined, number | undefined] {
+  if (index === 0) {
+    const n = parseInt(key, 10)!
+    return [undefined, n]
+  }
+
+  if (key.endsWith(']')) {
+    const parsed = parseIndexPath(key)
+    return [parsed.key, parsed.index]
+  }
+
+  return [key, undefined]
+}
+
+export function isObject(x: any) {
+  return !!x && !Array.isArray(x) && x.constructor === Object
+}
+
 
 /**
  * Private Helpers
