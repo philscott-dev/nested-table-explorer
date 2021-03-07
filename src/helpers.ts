@@ -21,7 +21,7 @@ interface ObjPaths {
   path: (string | number)[]
 }
 
-interface PathMap {
+export interface PathMap {
   [template: string]: string[]
 }
 
