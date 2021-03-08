@@ -4,8 +4,6 @@ import { promptPaths, promptUrl } from './prompts'
 import { getMetadata, flattenData, cleanupPathMaps } from './parser'
 import { fetcher } from './api'
 
-//const defaultUrl = 'https://jsonplaceholder.typicode.com/posts'
-
 ;(async () => {
   // prompt for a url to query from the user
   const { url } = await promptUrl()
