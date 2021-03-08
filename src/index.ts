@@ -8,7 +8,7 @@ import { fetcher } from './api'
   // prompt for a url to query from the user
   const { url } = await promptUrl()
 
-  // faking returning data as any
+  // get data via url or mock
   const response = url ? await fetcher(url) : mockData
 
   // get a path map based on data
