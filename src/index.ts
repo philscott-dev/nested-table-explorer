@@ -1,4 +1,4 @@
-import { getPaths } from './helpers'
+import { getPaths, arrayToCsv } from './helpers'
 import { mock as mockData } from './mock'
 import { promptPaths, promptUrl } from './prompts'
 import { getMetadata, flattenData, cleanupPathMaps } from './parser'
@@ -29,6 +29,7 @@ import { fetcher } from './api'
   const tableData = flattenData(response, metadata)
 
   console.log(userTemplates)
-  //console.log(tableData)
   console.log(JSON.stringify(tableData, null, 2))
+  const csv = arrayToCsv(tableData, userTemplates)
+  console.log(csv)
 })()

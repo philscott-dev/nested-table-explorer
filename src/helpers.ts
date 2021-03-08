@@ -118,7 +118,6 @@ export function isObject(x: any) {
   return !!x && !Array.isArray(x) && x.constructor === Object
 }
 
-
 /**
  * Private Helpers
  */
@@ -152,4 +151,33 @@ function createTemplateString(path: (string | number)[]) {
       return p
     })
     .join('.')
+}
+
+export function arrayToCsv(items: any[], paths: string[]) {
+  const header = paths.map((path) => {
+    const p = path.split('.')
+    return p[p.length - 1]
+  })
+  return [
+    header.join(','), // header row first
+    ...items.map((row) =>
+      header
+        .map((fieldName) => {
+          let field = row[fieldName]
+          // if(Array.isArray(field)){
+          //   field = field.join('\r\n')
+          // }
+          if (Array.isArray(field)) {
+            field = field.join('\r\n')
+          }
+          return JSON.stringify(field, (key: string, value: any) =>
+            value === null ? '' : value,
+          )
+        })
+        .join(','),
+    ),
+  ]
+    .join('\r\n')
+    .split('\\r\\n') // doing this for nested arrays that should be split
+    .join('\r\n')
 }

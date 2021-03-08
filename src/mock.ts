@@ -7,7 +7,6 @@ export const mock = [
       '1': 'string?',
       e: [
         {
-          f: '4',
           g: 5,
         },
       ],
@@ -43,7 +42,7 @@ export const mock = [
       e: [
         {
           f: '6',
-          g: 5,
+         
           h: {
             i: 2,
           },
