@@ -156,7 +156,8 @@ function createTemplateString(path: (string | number)[]) {
 export function arrayToCsv(items: any[], paths: string[]) {
   const header = paths.map((path) => {
     const p = path.split('.')
-    return p[p.length - 1]
+    const h = p[p.length - 1]
+    return h.endsWith(']') ? h.substring(0, h.indexOf('[')) : h
   })
   return [
     header.join(','), // header row first
@@ -179,5 +180,5 @@ export function arrayToCsv(items: any[], paths: string[]) {
   ]
     .join('\r\n')
     .split('\\r\\n') // doing this for nested arrays that should be split
-    .join('\r\n')
+    .join('\r\n')    // TODO: get rid of this...
 }
