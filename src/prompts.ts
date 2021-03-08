@@ -6,7 +6,7 @@ export async function promptUrl(): Promise<{ url: string }> {
     {
       type: 'input',
       name: 'url',
-      message: 'Please enter your api endpoint url',
+      message: 'Please enter your api endpoint url, or press leave blank for mock data',
     },
   ])
 }
