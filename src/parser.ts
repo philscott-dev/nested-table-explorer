@@ -10,6 +10,7 @@ export interface Metadata {
 /**
  * Get the data and position information of keys at selected paths
  */
+
 export function getMetadata(response: any, paths: string[]): Metadata[] {
   return paths.map((path) => {
     // split the path
@@ -30,7 +31,7 @@ export function getMetadata(response: any, paths: string[]): Metadata[] {
 }
 
 /**
- * Generate new tableData array
+ * Generate new copy of tableData array, with ONLY flattened properties
  */
 
 export function flattenData(response: any, metadata: Metadata[]) {
@@ -58,9 +59,10 @@ export function flattenData(response: any, metadata: Metadata[]) {
 }
 
 /**
- * Paths selected will be written back to top level of each object.
- * If used, you should cleanup all paths with length of 2 because those paths
- * are the object themselves.
+ * Paths selected will be written back to top level of each object and removed
+ * from their original position.If used, you should not allow paths with length 
+ * of 2 because those paths are the object themselves.
+ * = NOT USING IN DEMO index.ts =
  */
 
 export function flattenNestedProp(response: any, metadata: Metadata[]) {
@@ -104,8 +106,10 @@ export function flattenNestedProp(response: any, metadata: Metadata[]) {
 }
 
 /**
- * remove paths from the path map based on some logic
+ * Remove paths from the path map based on some logic
+ * Udate this function with more rules/behaior as necessary!!!
  */
+
 export function cleanupPathMaps(pathMap: PathMap) {
   for (const [template, paths] of Object.entries(pathMap)) {
     // remove base path always

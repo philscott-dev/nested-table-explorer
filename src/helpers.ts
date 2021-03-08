@@ -1,17 +1,3 @@
-// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_get
-export const get = (obj: any, path: string, defaultValue?: any) => {
-  const travel = (regexp: RegExp) =>
-    String.prototype.split
-      .call(path, regexp)
-      .filter(Boolean)
-      .reduce(
-        (res, key) => (res !== null && res !== undefined ? res[key] : res),
-        obj,
-      )
-  const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/)
-  return result === undefined || result === obj ? defaultValue : result
-}
-
 /**
  * Get Path Map
  */
@@ -82,6 +68,20 @@ export const getPaths = (data: any) => {
   return pathMap
 }
 
+// https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_get
+export const get = (obj: any, path: string, defaultValue?: any) => {
+  const travel = (regexp: RegExp) =>
+    String.prototype.split
+      .call(path, regexp)
+      .filter(Boolean)
+      .reduce(
+        (res, key) => (res !== null && res !== undefined ? res[key] : res),
+        obj,
+      )
+  const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/)
+  return result === undefined || result === obj ? defaultValue : result
+}
+
 // path templates that look like "myKey[100]""
 export function parseIndexPath(key: string) {
   const start = key.indexOf('[')
@@ -118,41 +118,6 @@ export function isObject(x: any) {
   return !!x && !Array.isArray(x) && x.constructor === Object
 }
 
-/**
- * Private Helpers
- */
-
-function handleIndexOrStringPaths(
-  path: (string | number)[],
-  key: string | number,
-) {
-  if (!path.length) {
-    return [key]
-  }
-  if (typeof key === 'number') {
-    return [
-      ...path.slice(0, path.length - 1),
-      path[path.length - 1] + `[${key}]`,
-    ]
-  }
-  return path.concat(key)
-}
-
-function createTemplateString(path: (string | number)[]) {
-  return path
-    .map((p) => {
-      if (typeof p === 'number') {
-        return '*'
-      }
-      if (p.endsWith(']')) {
-        const { key } = parseIndexPath(p)
-        return `${key}[*]`
-      }
-      return p
-    })
-    .join('.')
-}
-
 export function arrayToCsv(items: any[], paths: string[]) {
   const header = paths.map((path) => {
     const p = path.split('.')
@@ -186,4 +151,40 @@ export function getPathsFromTemplates(userTemplates: string[], pathMap: PathMap)
     .map((template) => pathMap?.[template])
     .flat()
     .filter(Boolean)
+}
+
+
+/**
+ * Private Helpers
+ */
+
+function handleIndexOrStringPaths(
+  path: (string | number)[],
+  key: string | number,
+) {
+  if (!path.length) {
+    return [key]
+  }
+  if (typeof key === 'number') {
+    return [
+      ...path.slice(0, path.length - 1),
+      path[path.length - 1] + `[${key}]`,
+    ]
+  }
+  return path.concat(key)
+}
+
+function createTemplateString(path: (string | number)[]) {
+  return path
+    .map((p) => {
+      if (typeof p === 'number') {
+        return '*'
+      }
+      if (p.endsWith(']')) {
+        const { key } = parseIndexPath(p)
+        return `${key}[*]`
+      }
+      return p
+    })
+    .join('.')
 }
