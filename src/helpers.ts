@@ -165,9 +165,7 @@ export function arrayToCsv(items: any[], paths: string[]) {
       header
         .map((fieldName) => {
           let field = row[fieldName]
-          // if(Array.isArray(field)){
-          //   field = field.join('\r\n')
-          // }
+
           if (Array.isArray(field)) {
             field = field.join('\r\n')
           }
