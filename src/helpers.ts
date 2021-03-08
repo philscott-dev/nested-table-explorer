@@ -180,5 +180,12 @@ export function arrayToCsv(items: any[], paths: string[]) {
   ]
     .join('\r\n')
     .split('\\r\\n') // doing this for nested arrays that should be split
-    .join('\r\n')    // TODO: get rid of this...
+    .join('\r\n') // TODO: get rid of this...
+}
+
+export function getPathsFromTemplates(userTemplates: string[], pathMap: PathMap) {
+  return userTemplates
+    .map((template) => pathMap?.[template])
+    .flat()
+    .filter(Boolean)
 }

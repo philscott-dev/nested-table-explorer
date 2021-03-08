@@ -1,4 +1,4 @@
-import { getPaths, arrayToCsv } from './helpers'
+import { getPaths, arrayToCsv, getPathsFromTemplates } from './helpers'
 import { mock as mockData } from './mock'
 import { promptPaths, promptUrl } from './prompts'
 import { getMetadata, flattenData, cleanupPathMaps } from './parser'
@@ -17,14 +17,15 @@ import { fetcher } from './api'
 
   // prompt user to select paths
   const { userTemplates } = await promptPaths(pathMap)
-  const paths = userTemplates
-    .map((template) => pathMap?.[template])
-    .flat()
-    .filter(Boolean)
+  const paths = getPathsFromTemplates(userTemplates, pathMap)
 
   // flatten the table data by user path
   const metadata = getMetadata(response, paths)
   const tableData = flattenData(response, metadata)
+
+  /**
+   * Print Test Data
+   */
 
   console.log('*** Selected Templates ***')
   console.log(userTemplates)
