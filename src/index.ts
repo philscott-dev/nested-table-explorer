@@ -11,6 +11,9 @@ import { fetcher } from './api'
   // get data via url or mock
   const response = url ? await fetcher(url) : mockData
 
+  console.log('*** Response Data ***')
+  console.log(JSON.stringify(response, null, 2))
+
   // get a path map based on data
   const initialMap = getPaths(response)
   const pathMap = cleanupPathMaps(initialMap)
